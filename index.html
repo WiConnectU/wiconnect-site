@@ -36,7 +36,7 @@
             access_code: code
           });
           console.log("Success:", result);
-          successMessage.textContent = `✅ Code sent to ${email}!`;
+          successMessage.textContent = `Code sent to ${email}!`;
           successMessage.style.display = "block";
           emailInput.value = "";
         } catch (error) {
@@ -174,7 +174,8 @@
     <input type="email" id="emailInput" placeholder="Your email" required />
     <button type="submit"><span>Get My Code</span></button>
     <div class="success" id="successMessage" style="display: none;"></div>
-    <div class="error" id="errorMessage" style="display: none;">❌ Something went wrong. Please try again.</div>
+    <div class="error" id="errorMessage" style="display: none;">Something went wrong. Please try again.</div>
   </form>
 </body>
 </html>
+
