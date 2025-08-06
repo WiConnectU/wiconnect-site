@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WiConnect | OTP Access</title>
 
-  <!-- EmailJS v4 SDK -->
+  <!-- emailjs v4 sdk -->
   <script type="module">
     import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3.11.0/+esm';
 
-    emailjs.init("xNGm5JXVybGTlOgfh"); // public key for acc
+    // initialize emailjs with your public key
+    emailjs.init("xNGm5JXVybGTlOgfh");
 
+    // generate a random 6-digit code
     function generateCode() {
       return Math.floor(100000 + Math.random() * 900000);
     }
@@ -20,6 +22,7 @@
       const emailInput = document.getElementById("emailInput");
       const successMessage = document.getElementById("successMessage");
       const errorMessage = document.getElementById("errorMessage");
+      const noteSection = document.getElementById("noteSection");
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -27,6 +30,7 @@
         const email = emailInput.value.trim();
         const code = generateCode();
 
+        // hide previous messages
         successMessage.style.display = "none";
         errorMessage.style.display = "none";
 
@@ -35,12 +39,19 @@
             to_email: email,
             access_code: code
           });
-          console.log("Success:", result);
-          successMessage.textContent = `Code sent to ${email}!`;
+
+          console.log("success:", result);
+          successMessage.textContent = `code sent to ${email}!`;
           successMessage.style.display = "block";
           emailInput.value = "";
+
+          // show the second section with smooth fade-in
+          noteSection.style.display = "block";
+          setTimeout(() => {
+            noteSection.classList.add("visible");
+          }, 10);
         } catch (error) {
-          console.error("EmailJS error:", error);
+          console.error("emailjs error:", error);
           errorMessage.style.display = "block";
         }
       });
@@ -143,7 +154,37 @@
       color: #ffaaaa;
     }
 
-    /* responsive design for non laptop */
+    /* hidden second section that fades in later */
+    .note-section {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      margin-top: 60px;
+      max-width: 600px;
+      padding: 30px 20px;
+      background-color: rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      backdrop-filter: blur(5px);
+    }
+
+    .note-section.visible {
+      opacity: 1;
+    }
+
+    .note-section h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.8rem;
+      color: #f6f6c4;
+    }
+
+    .note-section p {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #e4e4e4;
+    }
+
+    /* mobile styles */
     @media (max-width: 600px) {
       .logo {
         width: 120px;
@@ -160,22 +201,46 @@
       button {
         font-size: 1rem;
       }
+
+      .note-section {
+        margin-top: 40px;
+        padding: 20px;
+      }
+
+      .note-section h2 {
+        font-size: 1.3rem;
+      }
+
+      .note-section p {
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- logo here -->
+  <!-- logo up top -->
   <img src="WiConnectLogo.png" alt="WiConnect Logo" class="logo" />
 
+  <!-- main heading and description -->
   <h1>Welcome to WiConnect</h1>
   <p>Enter your email to receive a one-time 6-digit access code.</p>
 
+  <!-- the form to enter email -->
   <form id="emailForm">
-    <input type="email" id="emailInput" placeholder="Your email" required />
+    <input type="email" id="emailInput" placeholder="your email" required />
     <button type="submit"><span>Get My Code</span></button>
     <div class="success" id="successMessage" style="display: none;"></div>
-    <div class="error" id="errorMessage" style="display: none;">Something went wrong. Please try again.</div>
+    <div class="error" id="errorMessage" style="display: none;">something went wrong. please try again.</div>
   </form>
+
+  <!-- second section (hidden until form success) -->
+  <div class="note-section" id="noteSection">
+    <h2>How WiConnect really works</h2>
+    <p>
+      In the full version of wiconnect, your one-time code would be sent directly to your phone via sms — even without internet access!
+      <br><br>
+      For this demo, we’re using email just to simulate the flow.
+    </p>
+  </div>
 </body>
 </html>
-
