@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiConnect | OTP Access</title>
+
+  <!-- EmailJS v4 SDK -->
+  <script type="module">
+    import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3.11.0/+esm';
+
+    emailjs.init("xNGm5JXVybGTlOgfh"); // public key for acc
+
+    function generateCode() {
+      return Math.floor(100000 + Math.random() * 900000);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("emailForm");
+      const emailInput = document.getElementById("emailInput");
+      const successMessage = document.getElementById("successMessage");
+      const errorMessage = document.getElementById("errorMessage");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        const code = generateCode();
+
+        successMessage.style.display = "none";
+        errorMessage.style.display = "none";
+
+        try {
+          const result = await emailjs.send("service_jeonbxv", "template_urrgten", {
+            to_email: email,
+            access_code: code
+          });
+          console.log("Success:", result);
+          successMessage.textContent = `✅ Code sent to ${email}!`;
+          successMessage.style.display = "block";
+          emailInput.value = "";
+        } catch (error) {
+          console.error("EmailJS error:", error);
+          errorMessage.style.display = "block";
+        }
+      });
+    });
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top right, rgba(255, 255, 150, 0.08), transparent 30%),
+                  linear-gradient(to right, #0f3d2e, #244d3c, #486c50);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      text-align: center;
+      padding: 40px 20px 20px 20px;
+      box-sizing: border-box;
+    }
+
+    .logo {
+      width: 150px;
+      margin-bottom: 25px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+      transition: all 0.3s ease;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      max-width: 500px;
+      color: #f1f1f1;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    input[type="email"] {
+      padding: 0.8rem;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      background-color: #1e2d25;
+      color: white;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    input::placeholder {
+      color: #cfcfcf;
+    }
+
+    button {
+      padding: 0.9rem 2rem;
+      width: 100%;
+      background: linear-gradient(to right, #b7d87d, #a9c16a);
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f2e1e;
+      box-shadow: 0 4px 10px rgba(169, 193, 106, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 16px rgba(201, 224, 140, 0.5);
+      background: linear-gradient(to right, #c9e08c, #b8d376);
+    }
+
+    .success, .error {
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 1rem;
+      max-width: 90%;
+    }
+
+    .success {
+      color: #d4ffba;
+    }
+
+    .error {
+      color: #ffaaaa;
+    }
+
+    /* responsive design for non laptop */
+    @media (max-width: 600px) {
+      .logo {
+        width: 120px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      button {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- logo here -->
+  <img src="WiConnectLogo.png" alt="WiConnect Logo" class="logo" />
+
+  <h1>Welcome to WiConnect</h1>
+  <p>Enter your email to receive a one-time 6-digit access code.</p>
+
+  <form id="emailForm">
+    <input type="email" id="emailInput" placeholder="Your email" required />
+    <button type="submit"><span>Get My Code</span></button>
+    <div class="success" id="successMessage" style="display: none;"></div>
+    <div class="error" id="errorMessage" style="display: none;">❌ Something went wrong. Please try again.</div>
+  </form>
+</body>
+</html>
