@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WiConnect | OTP Access</title>
 
-  <!-- emailjs v4 sdk -->
+  <!-- emailjs sdk v4 -->
   <script type="module">
     import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3.11.0/+esm';
 
-    // initialize emailjs with public key
     emailjs.init("xNGm5JXVybGTlOgfh");
 
-    // generator for a random 6-digit code
+    let generatedCode = null;
+
     function generateCode() {
       return Math.floor(100000 + Math.random() * 900000);
     }
@@ -22,77 +22,115 @@
       const emailInput = document.getElementById("emailInput");
       const successMessage = document.getElementById("successMessage");
       const errorMessage = document.getElementById("errorMessage");
+
       const noteSection = document.getElementById("noteSection");
+      const codePage = document.getElementById("codePage");
+      const codeInput = document.getElementById("codeInput");
+      const codeVerifyButton = document.getElementById("verifyButton");
+      const verifyError = document.getElementById("verifyError");
+
+      const popup = document.getElementById("popup");
+      const closePopup = document.getElementById("closePopup");
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const email = emailInput.value.trim();
-        const code = generateCode();
+        generatedCode = generateCode();
 
-        // hide previous messages
         successMessage.style.display = "none";
         errorMessage.style.display = "none";
 
         try {
-          const result = await emailjs.send("service_jeonbxv", "template_urrgten", {
+          await emailjs.send("service_jeonbxv", "template_urrgten", {
             to_email: email,
-            access_code: code
+            access_code: generatedCode
           });
 
-          console.log("success:", result);
-          successMessage.textContent = `code sent to ${email}!`;
+          successMessage.textContent = `Code sent to ${email}!`;
           successMessage.style.display = "block";
           emailInput.value = "";
 
-          // show the second section with smooth fade-in
           noteSection.style.display = "block";
           setTimeout(() => {
             noteSection.classList.add("visible");
-          }, 10);
+          }, 100);
+
+          setTimeout(() => {
+            codePage.style.display = "flex";
+            codePage.scrollIntoView({ behavior: "smooth" });
+          }, 1000);
         } catch (error) {
           console.error("emailjs error:", error);
           errorMessage.style.display = "block";
         }
       });
+
+      codeVerifyButton.addEventListener("click", () => {
+        verifyError.style.display = "none";
+
+        const entered = codeInput.value.trim();
+        if (entered === String(generatedCode)) {
+          popup.style.display = "flex";
+          codeInput.value = "";
+        } else {
+          verifyError.style.display = "block";
+        }
+      });
+
+      closePopup.addEventListener("click", () => {
+        popup.style.display = "none";
+      });
     });
   </script>
 
   <style>
+    :root {
+      --green-bg: #0f3d2e;
+      --green-bg-dark: #1e2d25;
+      --muted-accent: #a9c16a;
+      --light-text: #f1f1f1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: radial-gradient(circle at top right, rgba(255, 255, 150, 0.08), transparent 30%),
-                  linear-gradient(to right, #0f3d2e, #244d3c, #486c50);
       color: white;
+      scroll-behavior: smooth;
+    }
+
+    .section {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       min-height: 100vh;
+      padding: 40px 20px;
       text-align: center;
-      padding: 40px 20px 20px 20px;
-      box-sizing: border-box;
+      background: radial-gradient(circle at top right, rgba(255, 255, 150, 0.08), transparent 30%),
+                  linear-gradient(to right, var(--green-bg), #244d3c, #486c50);
     }
 
     .logo {
       width: 150px;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-      transition: all 0.3s ease;
     }
 
     h1 {
       font-size: 2.8rem;
       margin-bottom: 0.5rem;
-      letter-spacing: 0.5px;
     }
 
     p {
       font-size: 1.2rem;
-      margin-bottom: 2rem;
       max-width: 500px;
-      color: #f1f1f1;
+      color: var(--light-text);
+      margin-bottom: 2rem;
     }
 
     form {
@@ -104,15 +142,18 @@
       max-width: 400px;
     }
 
-    input[type="email"] {
+    input[type="email"],
+    input[type="text"] {
       padding: 0.8rem;
       width: 100%;
+      max-width: 260px;
       border: none;
       border-radius: 6px;
       font-size: 1rem;
-      background-color: #1e2d25;
+      background-color: var(--green-bg-dark);
       color: white;
       box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+	  margin-bottom: 1rem;
     }
 
     input::placeholder {
@@ -121,8 +162,8 @@
 
     button {
       padding: 0.9rem 2rem;
-      width: 100%;
-      background: linear-gradient(to right, #b7d87d, #a9c16a);
+      max-width: 260px;
+      background: linear-gradient(to right, #b7d87d, var(--muted-accent));
       border: none;
       border-radius: 30px;
       font-size: 1rem;
@@ -136,7 +177,6 @@
     button:hover {
       transform: scale(1.03);
       box-shadow: 0 6px 16px rgba(201, 224, 140, 0.5);
-      background: linear-gradient(to right, #c9e08c, #b8d376);
     }
 
     .success, .error {
@@ -154,7 +194,6 @@
       color: #ffaaaa;
     }
 
-    /* hidden second section that fades in later */
     .note-section {
       display: none;
       opacity: 0;
@@ -172,77 +211,107 @@
       opacity: 1;
     }
 
-    .note-section h2 {
-      font-size: 1.6rem;
-      margin-bottom: 0.8rem;
-      color: #f6f6c4;
+    #codePage {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at bottom left, rgba(255, 255, 150, 0.08), transparent 30%),
+                  linear-gradient(to right, #1f402f, #2b5641, #3e7a57);
+      padding: 60px 20px;
     }
 
-    .note-section p {
-      font-size: 1.05rem;
-      line-height: 1.6;
-      color: #e4e4e4;
+    #codePage h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
     }
 
-    /* mobile styles */
+    /* popup modal */
+    #popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 99;
+    }
+
+    .popup-content {
+      background: #2c513f;
+      padding: 30px 20px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 300px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    }
+
+    .popup-content h3 {
+      color: #d4ffba;
+      margin-bottom: 15px;
+    }
+
+    .popup-content button {
+      margin-top: 10px;
+      padding: 8px 18px;
+      background-color: #a9c16a;
+      border: none;
+      border-radius: 20px;
+      color: #0f2e1e;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
     @media (max-width: 600px) {
-      .logo {
-        width: 120px;
-      }
-
-      h1 {
-        font-size: 2rem;
-      }
-
-      p {
-        font-size: 1rem;
-      }
-
-      button {
-        font-size: 1rem;
-      }
-
-      .note-section {
-        margin-top: 40px;
-        padding: 20px;
-      }
-
-      .note-section h2 {
-        font-size: 1.3rem;
-      }
-
-      .note-section p {
-        font-size: 0.95rem;
-      }
+      .logo { width: 120px; }
+      h1 { font-size: 2rem; }
+      p, .note-section p { font-size: 1rem; }
+      button { font-size: 1rem; }
+      #codePage h2 { font-size: 1.6rem; }
     }
   </style>
 </head>
+
 <body>
-  <!-- logo up top -->
-  <img src="WiConnectLogo.png" alt="WiConnect Logo" class="logo" />
+  <!-- landing -->
+  <div class="section" id="landingPage">
+    <img src="WiConnectLogo.png" alt="WiConnect Logo" class="logo" />
+    <h1>Welcome to WiConnect</h1>
+    <p>Enter your Email to receive a one-time 6-digit access code.</p>
 
-  <!-- main heading and description -->
-  <h1>Welcome to WiConnect</h1>
-  <p>Enter your email to receive a one-time 6-digit access code.</p>
+    <form id="emailForm">
+      <input type="email" id="emailInput" placeholder="Your Email" required />
+      <button type="submit">Get My Code</button>
+      <div class="success" id="successMessage" style="display: none;"></div>
+      <div class="error" id="errorMessage" style="display: none;">Something went wrong. Please try again.</div>
+    </form>
 
-  <!-- the form to enter email -->
-  <form id="emailForm">
-    <input type="email" id="emailInput" placeholder="your email" required />
-    <button type="submit"><span>Get My Code</span></button>
-    <div class="success" id="successMessage" style="display: none;"></div>
-    <div class="error" id="errorMessage" style="display: none;">something went wrong. please try again.</div>
-  </form>
+    <div class="note-section" id="noteSection">
+      <h2>How WiConnect really works</h2>
+      <p>
+        In the real version, you'd receive your code via SMS — even without internet.  
+        This is just an email-based simulation.
+      </p>
+    </div>
+  </div>
 
-  <!-- second section (hidden until form success) -->
-  <div class="note-section" id="noteSection">
-    <h2>How WiConnect really works</h2>
-    <p>
-      In the full version of WiConnect, your one-time code would be sent directly to your phone via sms — even without internet access!
-      <br><br>
-      For this demo, we’re using email just to simulate the flow.
-    </p>
+  <!-- second screen -->
+  <div class="section" id="codePage">
+    <h2>Enter your access code</h2>
+    <p>Type the 6-digit code sent to your Email to connect to WiConnect.</p>
+    <input type="text" id="codeInput" maxlength="6" placeholder="Enter Code Here" />
+    <button id="verifyButton">Verify & Connect</button>
+    <div class="error" id="verifyError" style="display: none;">Invalid code. Try again.</div>
+  </div>
+
+  <!-- popup modal -->
+  <div id="popup">
+    <div class="popup-content">
+      <h3>You're now connected to WiConnect!</h3>
+      <button id="closePopup">Close</button>
+    </div>
   </div>
 </body>
 </html>
-
-
